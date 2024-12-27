@@ -3,19 +3,12 @@ import School from "../models/school.model.js";
 export const createSchool = async (req, res) => {
   try {
     const { schoolname, logo } = req.body;
-    if (!schoolname) {
-      return res.status(400).json({ message: "School name is required" });
-    }
-    const existingSchool = await School.findOne({ schoolname });
-    if (existingSchool) {
-      return res
-        .status(400)
-        .json({ message: "School with this name already exists" });
-    }
+
     const school = new School({
       schoolname,
-      logo,
+      logo: logo || "/School_Sync.png",
     });
+
     await school.save();
 
     res.status(201).json({
@@ -25,6 +18,12 @@ export const createSchool = async (req, res) => {
       },
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        status: "error",
+        message: "A school with this name already exists",
+      });
+    }
     res.status(400).json({
       status: "error",
       message: error.message,

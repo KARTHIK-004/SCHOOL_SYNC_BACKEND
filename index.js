@@ -6,6 +6,8 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/user.routes.js";
 import schoolRoutes from "./routes/school.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
+import classRoutes from "./routes/class.routes.js";
+import sectionRoutes from "./routes/section.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
@@ -19,6 +21,8 @@ app.use(bodyParser.json());
 app.use("/api/users", userRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/classes", classRoutes);
+app.use("/api/sections", sectionRoutes);
 
 app.use(errorHandler);
 
