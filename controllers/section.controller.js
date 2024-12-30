@@ -55,6 +55,35 @@ export const createSection = async (req, res) => {
   }
 };
 
+export const getSectionsByClassId = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const classExists = await Class.findById(classId);
+    if (!classExists) {
+      return res.status(404).json({
+        status: "error",
+        message: "Class not found",
+      });
+    }
+
+    const sections = await Section.find({ class: classId });
+
+    res.status(200).json({
+      status: "success",
+      results: sections.length,
+      data: {
+        sections,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getSectionsByClassId:", error);
+    res.status(400).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
 export const getSections = async (req, res) => {
   try {
     const sections = await Section.find().populate("class", "name");

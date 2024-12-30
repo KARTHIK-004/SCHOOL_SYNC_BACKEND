@@ -8,6 +8,8 @@ import schoolRoutes from "./routes/school.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
 import classRoutes from "./routes/class.routes.js";
 import sectionRoutes from "./routes/section.routes.js";
+import parentRoutes from "./routes/parent.routes.js";
+import studentRoutes from "./routes/student.route.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
@@ -23,6 +25,8 @@ app.use("/api/schools", schoolRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/sections", sectionRoutes);
+app.use("/api/parents", parentRoutes);
+app.use("/api/students", studentRoutes);
 
 app.use(errorHandler);
 
