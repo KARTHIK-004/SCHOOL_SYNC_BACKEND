@@ -1,21 +1,19 @@
 import express from "express";
-import auth from "../middleware/auth.middleware.js";
 import {
   createStudent,
-  deleteStudent,
-  getAllStudents,
-  getStudentByEmail,
-  loginStudent,
   updateStudent,
+  getStudents,
+  getStudentById,
 } from "../controllers/student.controller.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+router.use(protect);
+
 router.post("/", createStudent);
-router.post("/login", loginStudent);
-router.get("/me", auth, getStudentByEmail);
-router.put("/:id", auth, updateStudent);
-router.delete("/:id", auth, deleteStudent);
-router.get("/", auth, getAllStudents);
+router.put("/:id", updateStudent);
+router.get("/", getStudents);
+router.get("/:id", getStudentById);
 
 export default router;
