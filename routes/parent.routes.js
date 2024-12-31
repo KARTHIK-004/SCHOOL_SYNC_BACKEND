@@ -1,18 +1,21 @@
 import express from "express";
 import {
   createParent,
-  getParents,
-  getParent,
   updateParent,
+  getParents,
+  getParentById,
   deleteParent,
 } from "../controllers/parent.controller.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+router.use(protect);
+
 router.post("/", createParent);
-router.get("/", getParents);
-router.get("/:id", getParent);
 router.put("/:id", updateParent);
+router.get("/", getParents);
+router.get("/:id", getParentById);
 router.delete("/:id", deleteParent);
 
 export default router;

@@ -6,6 +6,7 @@ import {
   updateSection,
   deleteSection,
   getSectionsByClassId,
+  getStudentsBySection,
 } from "../controllers/section.controller.js";
 
 const router = express.Router();
@@ -16,5 +17,6 @@ router.get("/:id", getSection);
 router.put("/:id", updateSection);
 router.delete("/:id", deleteSection);
 router.get("/class/:classId", getSectionsByClassId);
+router.get("/:sectionId", getStudentsBySection);
 
 export default router;

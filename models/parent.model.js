@@ -9,12 +9,10 @@ const parentSchema = new mongoose.Schema(
     firstname: {
       type: String,
       required: true,
-      trim: true,
     },
     lastname: {
       type: String,
       required: true,
-      trim: true,
     },
     email: {
       type: String,
@@ -40,6 +38,18 @@ const parentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    nationality: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+    },
+    relationship: {
+      type: String,
+      required: true,
+    },
     occupation: {
       type: String,
       required: true,
@@ -48,31 +58,21 @@ const parentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    gender: {
-      type: String,
-      required: true,
-    },
-    nationality: {
-      type: String,
-      required: true,
-    },
-    relationship: {
-      type: String,
-      required: true,
-    },
     preferredContact: {
       type: String,
       required: true,
-      enum: ["email", "phone", "whatsapp"],
     },
     imageUrl: {
       type: String,
       default: "/parent.png",
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Parent = mongoose.model("Parent", parentSchema);

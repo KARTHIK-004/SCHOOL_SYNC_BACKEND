@@ -84,6 +84,35 @@ export const getSectionsByClassId = async (req, res) => {
   }
 };
 
+export const getStudentsBySection = async (req, res) => {
+  try {
+    const { sectionId } = req.params;
+    const section = await Section.findById(sectionId);
+    if (!section) {
+      return res.status(404).json({
+        status: "error",
+        message: "Section not found",
+      });
+    }
+
+    const students = await Student.find({ section: sectionId });
+
+    res.status(200).json({
+      status: "success",
+      results: students.length,
+      data: {
+        students,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getStudentsBySection:", error);
+    res.status(400).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
 export const getSections = async (req, res) => {
   try {
     const sections = await Section.find().populate("class", "name");
