@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
 
-const ClassSchema = new mongoose.Schema(
+const classSchema = new mongoose.Schema(
   {
-    name: {
+    className: {
       type: String,
-      required: [true, "Please add a class name"],
-      unique: true,
-      trim: true,
-      maxlength: [50, "Name can not be more than 50 characters"],
+      required: true,
+    },
+    classCode: {
+      type: String,
+      required: true,
     },
     sections: {
       type: Number,
@@ -18,15 +19,24 @@ const ClassSchema = new mongoose.Schema(
       default: 0,
     },
     createdBy: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
+  { timestamps: true }
+);
+
+classSchema.index(
   {
-    timestamps: true,
+    classCode: 1,
+    createdBy: 1,
+  },
+  {
+    unique: true,
   }
 );
 
-const Class = mongoose.model("Class", ClassSchema);
+const Class = mongoose.model("Class", classSchema);
 
 export default Class;

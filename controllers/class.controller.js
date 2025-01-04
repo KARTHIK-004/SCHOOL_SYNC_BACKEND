@@ -1,137 +1,163 @@
 import Class from "../models/class.model.js";
 
 export const createClass = async (req, res) => {
+  console.log("Create class request received:", req.body);
   try {
-    const { name } = req.body;
+    const { className, classCode } = req.body;
 
-    if (!name) {
-      return res.status(400).json({
-        status: "error",
-        message: "Class name is required",
-      });
-    }
-
-    const existingClass = await Class.findOne({ name });
-    if (existingClass) {
-      return res.status(400).json({
-        status: "error",
-        message:
-          "A class with this name already exists. Please use a different name.",
-      });
-    }
-
-    const newClass = new Class({
-      name,
-      createdBy: req.user ? req.user._id : undefined,
-    });
-
-    const savedClass = await newClass.save();
-
-    res.status(201).json({
-      status: "success",
-      data: {
-        class: savedClass,
-      },
-    });
-  } catch (error) {
-    console.error("Error in createClass:", error);
-    res.status(400).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-};
-
-export const getClasses = async (req, res) => {
-  try {
-    const classes = await Class.find({})
-      .populate("createdBy", "name email")
-      .sort({ createdAt: -1 });
-    res.status(200).json({
-      status: "success",
-      results: classes.length,
-      data: {
-        classes,
-      },
-    });
-  } catch (error) {
-    console.error("Error in getClasses:", error);
-    res.status(500).json({
-      status: "error",
-      message: "Error retrieving classes",
-    });
-  }
-};
-
-export const getClass = async (req, res) => {
-  try {
-    const classItem = await Class.findById(req.params.id).populate(
-      "createdBy",
-      "name email"
+    console.log(
+      "Checking for existing class with code:",
+      classCode,
+      "for user:",
+      req.user._id
     );
-    if (!classItem) {
-      return res.status(404).json({
-        status: "error",
-        message: "Class not found",
-      });
+    const existingClass = await Class.findOne({
+      classCode,
+      createdBy: req.user._id,
+    });
+    if (existingClass) {
+      console.log("Existing class found for this user:", existingClass);
+      return res
+        .status(400)
+        .json({
+          message: "You have already created a class with this class code",
+        });
     }
-    res.status(200).json({
-      status: "success",
-      data: {
-        class: classItem,
-      },
-    });
+
+    console.log("Creating new class");
+    const classData = { ...req.body, createdBy: req.user._id };
+    const newClass = await Class.create(classData);
+    console.log("New class created:", newClass);
+    res.status(201).json(newClass);
   } catch (error) {
-    res.status(400).json({
-      status: "error",
-      message: error.message,
-    });
+    console.error("Error creating class:", error);
+    if (error.code === 11000) {
+      res
+        .status(400)
+        .json({
+          message: "You have already created a class with this class code",
+        });
+    } else {
+      res
+        .status(400)
+        .json({ message: "Error creating class", error: error.message });
+    }
   }
 };
 
 export const updateClass = async (req, res) => {
   try {
-    const classItem = await Class.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
+    const classToUpdate = await Class.findOne({
+      _id: req.params.id,
+      createdBy: req.user._id,
+    });
+    if (!classToUpdate) {
+      return res
+        .status(404)
+        .json({
+          message:
+            "Class not found or you do not have permission to update this class",
+        });
+    }
+    const updatedClass = await Class.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.json(updatedClass);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error updating class", error: error.message });
+  }
+};
+
+export const getClasses = async (req, res) => {
+  try {
+    const classes = await Class.find({ createdBy: req.user._id });
+    res.json(classes);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error fetching classes", error: error.message });
+  }
+};
+
+export const getClassById = async (req, res) => {
+  try {
+    const classItem = await Class.findOne({
+      _id: req.params.id,
+      createdBy: req.user._id,
     });
     if (!classItem) {
-      return res.status(404).json({
-        status: "error",
-        message: "Class not found",
-      });
+      return res
+        .status(404)
+        .json({
+          message:
+            "Class not found or you do not have permission to view this class",
+        });
     }
-    res.status(200).json({
-      status: "success",
-      data: {
-        class: classItem,
-      },
-    });
+    res.json(classItem);
   } catch (error) {
-    res.status(400).json({
-      status: "error",
-      message: error.message,
+    res
+      .status(400)
+      .json({ message: "Error fetching class", error: error.message });
+  }
+};
+
+export const updateClassStudentCount = async (req, res) => {
+  try {
+    const { classId, increment } = req.body;
+    const classToUpdate = await Class.findOne({
+      _id: classId,
+      createdBy: req.user._id,
     });
+
+    if (!classToUpdate) {
+      return res
+        .status(404)
+        .json({
+          message:
+            "Class not found or you do not have permission to update this class",
+        });
+    }
+
+    const updatedClass = await Class.findByIdAndUpdate(
+      classId,
+      { $inc: { students: increment ? 1 : -1 } },
+      { new: true }
+    );
+
+    res.json(updatedClass);
+  } catch (error) {
+    res
+      .status(400)
+      .json({
+        message: "Error updating class student count",
+        error: error.message,
+      });
   }
 };
 
 export const deleteClass = async (req, res) => {
   try {
-    const classItem = await Class.findByIdAndDelete(req.params.id);
-    if (!classItem) {
-      return res.status(404).json({
-        status: "error",
-        message: "Class not found",
-      });
+    const classToDelete = await Class.findOne({
+      _id: req.params.id,
+      createdBy: req.user._id,
+    });
+    if (!classToDelete) {
+      return res
+        .status(404)
+        .json({
+          message:
+            "Class not found or you do not have permission to delete this class",
+        });
     }
-    res.status(200).json({
-      status: "success",
-      data: null,
-    });
+    await Class.findByIdAndDelete(req.params.id);
+    res.json({ message: "Class deleted successfully" });
   } catch (error) {
-    res.status(400).json({
-      status: "error",
-      message: error.message,
-    });
+    res
+      .status(400)
+      .json({ message: "Error deleting class", error: error.message });
   }
 };
