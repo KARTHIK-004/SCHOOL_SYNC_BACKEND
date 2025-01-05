@@ -23,9 +23,22 @@ const classSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );
+
+classSchema.pre("save", function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
 
 classSchema.index(
   {
@@ -40,3 +53,5 @@ classSchema.index(
 const Class = mongoose.model("Class", classSchema);
 
 export default Class;
+
+console.log("Class model loaded");

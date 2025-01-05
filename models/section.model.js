@@ -1,36 +1,69 @@
 import mongoose from "mongoose";
 
-const SectionSchema = new mongoose.Schema(
+const sectionSchema = new mongoose.Schema(
   {
-    name: {
+    sectionName: {
       type: String,
-      required: [true, "Please add a section name"],
-      trim: true,
-      maxlength: [10, "Name can not be more than 10 characters"],
+      required: [true, "Section name is required"],
+    },
+    sectionCode: {
+      type: String,
+      required: [true, "Section code is required"],
     },
     class: {
-      type: mongoose.Schema.ObjectId,
-      ref: "Class",
-      required: true,
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+        required: [true, "Class ID is required"],
+      },
+      name: {
+        type: String,
+        required: [true, "Class name is required"],
+      },
     },
-    teacher: {
+    classTeacher: {
       type: String,
-      required: [true, "Please add a teacher name"],
+      required: [true, "Class teacher is required"],
     },
     students: {
       type: Number,
       default: 0,
     },
     createdBy: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
     },
   },
+  { timestamps: true }
+);
+
+sectionSchema.pre("save", function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+sectionSchema.index(
   {
-    timestamps: true,
+    sectionCode: 1,
+    "class.id": 1,
+    createdBy: 1,
+  },
+  {
+    unique: true,
   }
 );
 
-const Section = mongoose.model("Section", SectionSchema);
+const Section = mongoose.model("Section", sectionSchema);
 
 export default Section;
+
+console.log("Section model loaded");
