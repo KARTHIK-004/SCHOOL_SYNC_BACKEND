@@ -53,5 +53,3 @@ classSchema.index(
 const Class = mongoose.model("Class", classSchema);
 
 export default Class;
-
-console.log("Class model loaded");

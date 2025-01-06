@@ -65,5 +65,3 @@ sectionSchema.index(
 const Section = mongoose.model("Section", sectionSchema);
 
 export default Section;
-
-console.log("Section model loaded");
